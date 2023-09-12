@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class GameManager : SerializedMonoBehaviour
 {
-    [SerializeField] List<string> _TargetItemNames;
     [SerializeField] ItemPicker _ItemPicker;
+    [SerializeField] ItemDefinitions _ItemDefinitions;
 
+    List<string> _targetItemNames;
     List<string> _pickedUpItemNames;
 
     void Awake()
@@ -17,28 +18,29 @@ public class GameManager : SerializedMonoBehaviour
         _pickedUpItemNames = new();
     }
 
-    void Update()
+    void Start()
     {
-        if(Input.GetKeyUp(KeyCode.P))
-            CheckResults();
+        var items = _ItemDefinitions.GetRandomItems(4);
+
+        _targetItemNames = new();
+
+        foreach (var item in items)
+            _targetItemNames.Add(item.Name);
     }
 
-    void ItemPickedUp(string itemName)
-    {
-        _pickedUpItemNames.Add(itemName);
-    }
+    void ItemPickedUp(string itemName) => _pickedUpItemNames.Add(itemName);
 
     public void CheckResults()
     {
-        int targetScore = _TargetItemNames.Count;
-
+        int targetScore = _targetItemNames.Count;
         int totalScore = 0;
+        List<string> copiedItemNames = new(_pickedUpItemNames);
 
-        foreach(var targetName in _TargetItemNames)
+        foreach(var targetName in _targetItemNames)
         {
-            if (_pickedUpItemNames.Contains(targetName))
+            if (copiedItemNames.Contains(targetName))
             {
-                _pickedUpItemNames.Remove(targetName);
+                copiedItemNames.Remove(targetName);
                 totalScore++;
                 Debug.LogError($"Item {targetName} found!");
             }

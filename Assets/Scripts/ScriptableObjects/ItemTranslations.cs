@@ -2,7 +2,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "ItemTranslations", menuName = "Create ItemTranslations", order = 0)]
+//[CreateAssetMenu(fileName = "ItemTranslations", menuName = "Create ItemTranslations", order = 0)]
 public class ItemTranslations : SerializedScriptableObject
 {
     [SerializeField] Dictionary<string, Dictionary<string, string>> _Translations;
