@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Crouch : MonoBehaviour
 {
-    public KeyCode key = KeyCode.LeftControl;
+    [SerializeField] KeyCode _key = KeyCode.LeftControl;
 
     [Header("Slow Movement")]
     [Tooltip("Movement to slow down when crouched.")]
@@ -31,7 +31,6 @@ public class Crouch : MonoBehaviour
 
     void Reset()
     {
-        // Try to get components.
         movement = GetComponentInParent<FirstPersonMovement>();
         headToLower = movement.GetComponentInChildren<Camera>().transform;
         colliderToLower = movement.GetComponentInChildren<CapsuleCollider>();
@@ -39,14 +38,12 @@ public class Crouch : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Input.GetKeyDown(key))
+        if (Input.GetKeyDown(_key))
         {
             if (headToLower)
             {
                 if (!defaultHeadYLocalPosition.HasValue)
                     defaultHeadYLocalPosition = headToLower.localPosition.y;
-
-                //headToLower.localPosition = new Vector3(headToLower.localPosition.x, crouchYHeadPosition, headToLower.localPosition.z);
             }
 
             float loweringAmount = 0;
@@ -56,60 +53,31 @@ public class Crouch : MonoBehaviour
                 if (!defaultColliderHeight.HasValue)
                     defaultColliderHeight = colliderToLower.height;
 
-                if(defaultHeadYLocalPosition.HasValue)
+                if (defaultHeadYLocalPosition.HasValue)
                     loweringAmount = defaultHeadYLocalPosition.Value - crouchYHeadPosition;
                 else
                     loweringAmount = defaultColliderHeight.Value * .5f;
-
-                //colliderToLower.height = Mathf.Max(defaultColliderHeight.Value - loweringAmount, 0);
-                //colliderToLower.center = .5f * colliderToLower.height * Vector3.up;
             }
 
             StopAllCoroutines();
             StartCoroutine(Crouching(defaultColliderHeight.Value - loweringAmount, crouchYHeadPosition));
 
-            //if (!IsCrouched)
-            //{
-                //IsCrouched = true;
-                SetSpeedOverrideActive(true);
-                CrouchStart?.Invoke();
-            //}
+            SetSpeedOverrideActive(true);
+            CrouchStart?.Invoke();
         }
 
-        
-
-        if(Input.GetKeyUp(key))
+        if(Input.GetKeyUp(_key))
         {
-            //if (IsCrouched)
-            {
-                if (headToLower)
-                {
-                    //headToLower.localPosition = new Vector3(headToLower.localPosition.x, defaultHeadYLocalPosition.Value, headToLower.localPosition.z);
-                }
-
-                if (colliderToLower)
-                {
-                    //colliderToLower.height = defaultColliderHeight.Value;
-                    //colliderToLower.center = .5f * colliderToLower.height * Vector3.up;
-                }
-
-                    StopAllCoroutines();
-                    StartCoroutine(Crouching(defaultColliderHeight.Value, defaultHeadYLocalPosition.Value));
-                //IsCrouched = false;
-                SetSpeedOverrideActive(false);
-                CrouchEnd?.Invoke();
-            }
+            StopAllCoroutines();
+            StartCoroutine(Crouching(defaultColliderHeight.Value, defaultHeadYLocalPosition.Value));
+            SetSpeedOverrideActive(false);
+            CrouchEnd?.Invoke();
         }
     }
 
 
     IEnumerator Crouching(float colliderHeight, float headPosition)
     {
-        //while(!Mathf.Approximately(colliderToLower.height, colliderHeight))
-        //{
-        //    colliderToLower.height = Mathf.MoveTowards(colliderToLower.height, colliderHeight, Time.deltaTime);
-        //    yield return null;
-        //}
         bool headInPosition = false, colliderInPosition = false;
 
         while (!headInPosition || !colliderInPosition)
@@ -144,29 +112,13 @@ public class Crouch : MonoBehaviour
     #region Speed override.
     void SetSpeedOverrideActive(bool state)
     {
-        // Stop if there is no movement component.
-        if(!movement)
-        {
-            return;
-        }
-
-        // Update SpeedOverride.
         if (state)
         {
-            // Try to add the SpeedOverride to the movement component.
-            if (!movement.speedOverrides.Contains(SpeedOverride))
-            {
-                movement.speedOverrides.Add(SpeedOverride);
-            }
+            if (!movement.SpeedOverrides.Contains(SpeedOverride))
+                movement.SpeedOverrides.Add(SpeedOverride);
         }
         else
-        {
-            // Try to remove the SpeedOverride from the movement component.
-            if (movement.speedOverrides.Contains(SpeedOverride))
-            {
-                movement.speedOverrides.Remove(SpeedOverride);
-            }
-        }
+            movement.SpeedOverrides.Remove(SpeedOverride);
     }
 
     float SpeedOverride() => movementSpeed;
